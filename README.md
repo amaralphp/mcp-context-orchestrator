@@ -9,6 +9,9 @@
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-blue?logo=mysql)
 ![MongoDB](https://img.shields.io/badge/MongoDB-7.0-green?logo=mongodb)
 ![License](https://img.shields.io/badge/License-Apache%202.0-blue)
+![Micrometer](https://img.shields.io/badge/Micrometer-1.13-brightgreen)
+![Prometheus](https://img.shields.io/badge/Prometheus-2.53-E6522C)
+![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-1.37-4A154B?logo=opentelemetry)
 
 **Orquestrador de contexto MCP (Model Context Protocol).** Consulta e ingestão de recursos em múltiplos bancos de dados (PostgreSQL, MySQL, MongoDB) com cache inteligente, auditoria baseada em eventos Kafka e suporte a gRPC + REST.
 
@@ -105,6 +108,10 @@ O MCP Context Orchestrator centraliza consultas a múltiplas fontes de dados, pe
 | Testcontainers | 1.19.8 | Testes de integração |
 | JaCoCo | 0.8.11 | Cobertura de código |
 | Checkstyle / PMD | - | Análise estática |
+| Prometheus | 2.53 | Métricas e monitoramento |
+| OpenTelemetry | 1.37 | Distributed tracing |
+| Zipkin | 3.4 | Trace visualization |
+| Jaeger | 1.60 | Trace visualization (OTLP) |
 
 ---
 
@@ -248,6 +255,19 @@ mvn verify
 # Qualidade
 mvn checkstyle:check pmd:check pmd:cpd-check
 ```
+
+## Monitoramento
+
+| Endpoint | Descrição |
+|----------|-----------|
+| `GET /actuator/health` | Health check (DB, Kafka) |
+| `GET /actuator/info` | Informações da aplicação |
+| `GET /actuator/metrics` | Métricas Micrometer |
+| `GET /actuator/prometheus` | Métricas no formato Prometheus |
+
+### Tracing Distribuído
+
+Tracing via OpenTelemetry com exportação para Zipkin e Jaeger.
 
 ---
 

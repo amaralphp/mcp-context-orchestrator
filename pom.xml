@@ -27,6 +27,7 @@
         <checkstyle.version>10.14.0</checkstyle.version>
         <maven-pmd-plugin.version>3.21.2</maven-pmd-plugin.version>
         <jacoco.version>0.8.12</jacoco.version>
+        <opentelemetry.version>1.37.0</opentelemetry.version>
     </properties>
 
     <dependencies>
@@ -99,6 +100,22 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+        <!-- OpenTelemetry Tracing -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-zipkin</artifactId>
+            <version>${opentelemetry.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
+            <version>${opentelemetry.version}</version>
         </dependency>
 
         <dependency>
