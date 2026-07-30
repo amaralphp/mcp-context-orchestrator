@@ -1,0 +1,95 @@
+version: "3.9"
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - mcp-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - mcp-net
+
+  postgres:
+    image: postgres:16
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: mcporch
+      POSTGRES_USER: mcporch
+      POSTGRES_PASSWORD: mcporch_pass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - mcp-net
+
+  mysql:
+    image: mysql:8.4
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: mcporch
+      MYSQL_USER: mcporch
+      MYSQL_PASSWORD: mcporch_pass
+      MYSQL_ROOT_PASSWORD: root_pass
+    volumes:
+      - mysqldata:/var/lib/mysql
+    networks:
+      - mcp-net
+
+  mongo:
+    image: mongo:7
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_DATABASE: mcporch
+      MONGO_INITDB_ROOT_USERNAME: mcporch
+      MONGO_INITDB_ROOT_PASSWORD: mcporch_pass
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - mcp-net
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    depends_on:
+      - kafka
+      - postgres
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mcporch
+      SPRING_DATASOURCE_USERNAME: mcporch
+      SPRING_DATASOURCE_PASSWORD: mcporch_pass
+      MCP_CACHE_TTL_SECONDS: "300"
+    networks:
+      - mcp-net
+
+volumes:
+  pgdata:
+  mysqldata:
+  mongodata:
+
+networks:
+  mcp-net:
+    driver: bridge

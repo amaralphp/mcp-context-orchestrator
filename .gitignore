@@ -1,0 +1,43 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+## IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+## VS Code
+.vscode/
+.settings/
+.factorypath
+
+## NetBeans
+nbactions.xml
+nb-configuration.xml
+nbproject/
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Logs
+*.log
+logs/
+
+## Env
+.env
+.env.local
+
+## Build
+build/
+native-build/
+*.native
+
+## Docker
+docker-data/
+
+## Test reports
+test-output/
+surefire-reports/

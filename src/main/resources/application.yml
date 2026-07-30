@@ -1,0 +1,122 @@
+server:
+  port: ${SERVER_PORT:8080}
+  compression:
+    enabled: true
+    min-response-size: 1024
+
+spring:
+  application:
+    name: mcp-context-orchestrator
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      write-durations-as-timestamps: false
+    date-format: yyyy-MM-dd'T'HH:mm:ss.SSS'Z'
+    time-zone: UTC
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+  kafka:
+    bootstrap-servers: ${MCP_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: audit-entry:com.mcporchestrator.domain.entity.AuditEntry
+        enable.idempotence: true
+        acks: all
+    consumer:
+      group-id: mcp-context-orchestrator
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.mcporchestrator.domain.entity
+        spring.json.type.mapping: audit-entry:com.mcporchestrator.domain.entity.AuditEntry
+        auto.offset.reset: earliest
+    streams:
+      application-id: ${spring.application.name}-streams
+      bootstrap-servers: ${MCP_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+      properties:
+        default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+        default.value.serde: org.springframework.kafka.support.serializer.JsonSerde
+        spring.json.trusted.packages: "*"
+        commit.interval.ms: 1000
+      state-dir: /tmp/kafka-streams
+
+mcp:
+  kafka:
+    audit-topic: ${MCP_KAFKA_AUDIT_TOPIC:audit-events}
+    partitions: 3
+    replication-factor: 1
+  cache:
+    ttl-seconds: ${MCP_CACHE_TTL_SECONDS:300}
+  grpc:
+    port: ${GRPC_SERVER_PORT:9090}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: postgres
+  datasource:
+    url: ${MCP_DATASOURCE_POSTGRES_URL:jdbc:postgresql://localhost:5433/mcporch}
+    username: ${MCP_DATASOURCE_USERNAME:mcporch}
+    password: ${MCP_DATASOURCE_PASSWORD:mcporch_pass}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+---
+spring:
+  config:
+    activate:
+      on-profile: mysql
+  datasource:
+    url: ${MCP_DATASOURCE_MYSQL_URL:jdbc:mysql://localhost:3307/mcporch}
+    username: ${MCP_DATASOURCE_USERNAME:mcporch}
+    password: ${MCP_DATASOURCE_PASSWORD:mcporch_pass}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+---
+spring:
+  config:
+    activate:
+      on-profile: mongo
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+  data:
+    mongodb:
+      uri: ${MCP_DATASOURCE_MONGO_URI:mongodb://mcporch:mcporch_pass@localhost:27018/mcporch}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  kafka:
+    bootstrap-servers: ${spring.embedded.kafka.brokers:localhost:9092}
