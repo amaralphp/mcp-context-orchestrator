@@ -14,7 +14,7 @@
     <groupId>com.mcporchestrator</groupId>
     <artifactId>mcp-context-orchestrator</artifactId>
     <version>1.0.0</version>
-    <name>mcp-context-orchestrator</name>
+    <name>MCP Context Orchestrator</name>
     <description>MCP Context Orchestrator</description>
 
     <properties>
